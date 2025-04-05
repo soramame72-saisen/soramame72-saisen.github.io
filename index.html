@@ -63,7 +63,11 @@
   </footer>
 
   <audio id="coin-sound">
-  <source src="https://freesound.org/data/previews/341/341695_3248244-lq.mp3" type="audio/mpeg">
+    <source src="https://freesound.org/data/previews/341/341695_3248244-lq.mp3" type="audio/mpeg">
+  </audio>
+
+  <audio id="bgm" loop>
+    <source src="https://dl.vgmdownloads.com/soundtracks/touhou-6-embodiment-of-scarlet-devil/waqnbmyy/103%20-%20Shrine%20Maiden%20of%20the%20Wind.mp3" type="audio/mpeg">
   </audio>
 
   <script>
@@ -78,9 +82,10 @@
     let coinCount = 0;
     let bgmStarted = false;
     let clickTimes = [];
+    let lastTouchTime = 0;
 
     const reimuFaces = {
-      normal: "normal.png",
+      normal: "reimu_normal.png",
       happy: "reimu_happy.png",
       excited: "reimu_excited.png",
       angry: "reimu_angry.png"
@@ -99,14 +104,15 @@
       { count: 45, line: "私に惚れた？…冗談よ", face: "excited" },
       { count: 50, line: "信仰が暴走してるわね", face: "angry" },
       { count: 60, line: "ちょっと真面目に嬉しいかも", face: "happy" },
-      { count: 75, line: "もう止まらないわね", face: "excited" },
-      { count: 90, line: "あんた霊夢専属信者でしょ", face: "happy" },
-      { count: 100, line: "今日の勝者はあなた！", face: "excited" },
-      { count: 150, line: "本殿を金ピカにしてやろうかしら", face: "angry" },
-      { count: 200, line: "神主にも見せてやりたいわね", face: "excited" },
-      { count: 300, line: "これはもう信仰じゃなくて愛ね", face: "happy" },
-      { count: 500, line: "あなたが神か…", face: "angry" },
-      { count: 1000, line: "信仰の化身。尊敬するわ", face: "angry" }
+      { count: 70, line: "もう止まらないわね", face: "excited" },
+      { count: 80, line: "あんた霊夢専属信者でしょ", face: "happy" },
+      { count: 90, line: "今日の勝者はあなた！", face: "excited" },
+      { count: 100, line: "本殿を金ピカにしてやろうかしら", face: "angry" },
+      { count: 150, line: "神主にも見せてやりたいわね", face: "excited" },
+      { count: 200, line: "これはもう信仰じゃなくて愛ね", face: "happy" },
+      { count: 300, line: "あなたが神か…", face: "angry" },
+      { count: 500, line: "信仰の化身。尊敬するわ", face: "happy" },
+      { count: 1000, line: "神社が神界になったわ", face: "angry" }
     ];
 
     function updateCPS() {
@@ -143,11 +149,14 @@
       reimuImg.src = reimuFaces[selectedLine.face];
     }
 
-    // 長押し対策
+    // 長押し対策：500ms以内の連続touchは無視
     coinButton.addEventListener("mousedown", throwCoin);
     coinButton.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      throwCoin();
+      const now = Date.now();
+      if (now - lastTouchTime > 500) {
+        throwCoin();
+        lastTouchTime = now;
+      }
     });
 
     setInterval(updateCPS, 200);
