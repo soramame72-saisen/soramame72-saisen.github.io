@@ -19,6 +19,7 @@
     #saisenbako {
       width: 150px;
       margin: 10px auto;
+      position: relative; /* 位置を相対的に指定 */
     }
     #message {
       margin: 10px;
@@ -42,6 +43,37 @@
       margin-top: 40px;
       font-size: 14px;
       color: #666;
+    }
+    
+    /* コインアニメーション用 */
+    .coin {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color: gold;
+      border-radius: 50%;
+      opacity: 0;
+      animation: throwCoin 1s forwards; /* アニメーションを適用 */
+    }
+
+    @keyframes throwCoin {
+      0% {
+        top: 50px; /* ボタンの位置 */
+        left: 50%; 
+        transform: translateX(-50%) scale(1); /* 中心に配置 */
+        opacity: 1;
+      }
+      50% {
+        top: 100px; /* 中間地点 */
+        left: 52%;
+        transform: translateX(-50%) scale(1.2); /* 少し拡大 */
+      }
+      100% {
+        top: 150px; /* 賽銭箱の位置 */
+        left: 50%;
+        transform: translateX(-50%) scale(1);
+        opacity: 0; /* アニメーション後に消える */
+      }
     }
   </style>
 </head>
@@ -73,10 +105,11 @@
     const coinButton = document.getElementById("coin-button");
     const coinSound = document.getElementById("coin-sound");
     const reimuImg = document.getElementById("reimu");
+    const saisenBako = document.getElementById("saisenbako");
 
     let coinCount = 0;
     let clickTimes = [];
-    let lastTouch = 0; // タッチイベントを管理する変数
+    let lastTouch = 0;
 
     const reimuFaces = {
       normal: "reimu_normal.png",
@@ -135,16 +168,24 @@
 
       messageDiv.textContent = selectedLine.line;
       reimuImg.src = reimuFaces[selectedLine.face];
+
+      // コインアニメーションの追加
+      const coin = document.createElement('div');
+      coin.classList.add('coin');
+      saisenBako.appendChild(coin);
+      setTimeout(() => {
+        coin.remove(); // アニメーション後にコインを削除
+      }, 1000);
     }
 
     // 長押し対策
     coinButton.addEventListener("mousedown", (e) => {
-      if (Date.now() - lastTouch < 500) return; // 直前にtouchstartされた場合は無視
+      if (Date.now() - lastTouch < 500) return;
       throwCoin();
     });
 
     coinButton.addEventListener("touchstart", (e) => {
-      e.preventDefault(); // スクロール防止
+      e.preventDefault();
       lastTouch = Date.now();
       throwCoin();
     });
