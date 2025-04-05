@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>霊夢の賽銭ゲーム</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       text-align: center;
       background-color: #fffbe6;
@@ -12,42 +16,54 @@
       margin: 0;
       padding: 0;
     }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
     h1 {
-      margin-top: 20px;
+      font-size: 24px;
+      margin: 10px 0 20px;
     }
-    #reimu {
-      width: 200px;
-      margin: 20px auto;
-      display: block;
-    }
-    #saisenbako {
-      width: 150px;
+
+    #reimu, #saisenbako {
+      width: 100%;
+      max-width: 200px;
+      height: auto;
       margin: 10px auto;
       display: block;
     }
+
     #message {
       margin: 10px;
       font-size: 18px;
       color: #c00;
+      min-height: 24px;
     }
+
     #coin-button {
-      padding: 10px 20px;
-      font-size: 20px;
+      padding: 12px 24px;
+      font-size: 18px;
       background-color: gold;
       border: none;
       border-radius: 10px;
       cursor: pointer;
       margin-top: 20px;
     }
+
     #coin-count, #cps {
       font-size: 16px;
       margin-top: 10px;
     }
+
     footer {
       margin-top: 40px;
       font-size: 14px;
       color: #666;
     }
+
     a {
       color: #666;
     }
@@ -55,19 +71,21 @@
 </head>
 <body>
 
-  <h1>霊夢に賽銭を投げよう！</h1>
+  <div class="container">
+    <h1>霊夢に賽銭を投げよう！</h1>
 
-  <img id="reimu" src="reimu_normal.png" alt="霊夢の表情">
-  <img id="saisenbako" src="saisen.png" alt="賽銭箱">
+    <img id="reimu" src="reimu_normal.png" alt="霊夢の表情">
+    <img id="saisenbako" src="saisen.png" alt="賽銭箱">
 
-  <div id="message">賽銭まだ？</div>
-  <button id="coin-button">賽銭を投げる！</button>
-  <div id="coin-count">賽銭の数: 0</div>
-  <div id="cps">CPS: 0</div>
+    <div id="message">賽銭まだ？</div>
+    <button id="coin-button">賽銭を投げる！</button>
+    <div id="coin-count">賽銭の数: 0</div>
+    <div id="cps">CPS: 0</div>
 
-  <footer>
-    霊夢立ち絵: <a href="https://twitter.com/_Hoshi_Ringo_" target="_blank">星りんご (@_Hoshi_Ringo_)</a>
-  </footer>
+    <footer>
+      霊夢立ち絵: <a href="https://twitter.com/_Hoshi_Ringo_" target="_blank">星りんご (@_Hoshi_Ringo_)</a>
+    </footer>
+  </div>
 
   <!-- 効果音 -->
   <audio id="coin-sound">
@@ -158,10 +176,7 @@
       reimuImg.src = reimuFaces[selectedLine.face];
     }
 
-    // PC: クリック
     coinButton.addEventListener("mousedown", throwCoin);
-
-    // スマホ: 長押しは1回だけ反応
     coinButton.addEventListener("touchstart", (e) => {
       const now = Date.now();
       if (now - lastTouchTime > 500) {
@@ -170,7 +185,6 @@
       }
     });
 
-    // CPS 更新
     setInterval(updateCPS, 200);
   </script>
 </body>
