@@ -27,8 +27,8 @@
       color: #c00;
     }
     #coin-button, #reset-button {
-      padding: 10px 20px;
-      font-size: 20px;
+      padding: 15px 30px;
+      font-size: 24px;
       margin: 10px;
       background-color: gold;
       border: none;
@@ -169,6 +169,10 @@
     }
 
     function throwCoin() {
+      if (!timerRunning) {
+        startTimer(parseInt(timerSelect.value));
+      }
+
       if (timerRunning && timeRemaining <= 0) return;
 
       const now = Date.now();
