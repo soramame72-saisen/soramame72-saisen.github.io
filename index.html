@@ -129,6 +129,7 @@
     let timerInterval = null;
     let timeRemaining = 0;
     let timerRunning = false;
+    let isTimerStopped = false;  // タイマー停止状態を追跡
 
     highScoreDiv.textContent = `ハイスコア: ${highScore}`;
 
@@ -169,11 +170,7 @@
     }
 
     function throwCoin() {
-      if (!timerRunning) {
-        startTimer(parseInt(timerSelect.value));
-      }
-
-      if (timerRunning && timeRemaining <= 0) return;
+      if (isTimerStopped || !timerRunning) return;  // タイマー停止後のクリックは無効
 
       const now = Date.now();
       clickTimes.push(now);
@@ -208,6 +205,7 @@
       }
       timeRemaining = duration;
       timerRunning = true;
+      isTimerStopped = false;  // タイマーを再開状態に
       timerDisplay.textContent = `残り時間: ${timeRemaining}秒`;
       timerInterval = setInterval(() => {
         timeRemaining--;
@@ -218,6 +216,7 @@
           messageDiv.textContent = "時間切れよ";
           reimuImg.src = reimuFaces.angry;
           timerRunning = false;
+          isTimerStopped = true;  // タイマー停止状態
           updateHighScore();
         }
       }, 1000);
