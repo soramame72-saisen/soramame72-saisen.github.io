@@ -165,12 +165,12 @@
 
     function updateCPS() {
       const now = Date.now();
-      clickTimes = clickTimes.filter(t => now - t < 1000);
+      clickTimes = clickTimes.filter(t => now - t < 1000);  // 1秒以内のクリックのみカウント
       cpsDiv.textContent = `CPS: ${clickTimes.length}`;
     }
 
     function throwCoin() {
-      if (isTimerStopped || !timerRunning) return;  // タイマー停止後のクリックは無効
+      if (isTimerStopped || !timerRunning && timerSelect.value != "0") return;  // タイマー停止後やタイマーがない状態でない場合
 
       const now = Date.now();
       clickTimes.push(now);
