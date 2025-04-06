@@ -19,23 +19,23 @@
     #saisenbako {
       width: 150px;
       margin: 10px auto;
-      position: relative;
+      position: relative; /* 位置を相対的に指定 */
     }
     #message {
       margin: 10px;
       font-size: 18px;
       color: #c00;
     }
-    #coin-button, #reset-button {
-      padding: 15px 30px;
-      font-size: 24px;
-      margin: 10px;
+    #coin-button {
+      padding: 10px 20px;
+      font-size: 20px;
       background-color: gold;
       border: none;
       border-radius: 10px;
       cursor: pointer;
+      margin-top: 20px;
     }
-    #coin-count, #cps, #high-score, #timer-display {
+    #coin-count, #cps {
       font-size: 16px;
       margin-top: 10px;
     }
@@ -44,6 +44,8 @@
       font-size: 14px;
       color: #666;
     }
+    
+    /* コインアニメーション用 */
     .coin {
       position: absolute;
       width: 20px;
@@ -51,30 +53,32 @@
       background-color: gold;
       border-radius: 50%;
       opacity: 0;
-      animation: throwCoin 1s forwards;
+      animation: throwCoin 1s forwards; /* アニメーションを適用 */
     }
+
     @keyframes throwCoin {
       0% {
-        top: 50px;
-        left: 50%;
-        transform: translateX(-50%) scale(1);
+        top: 50px; /* ボタンの位置 */
+        left: 50%; 
+        transform: translateX(-50%) scale(1); /* 中心に配置 */
         opacity: 1;
       }
       50% {
-        top: 100px;
+        top: 100px; /* 中間地点 */
         left: 52%;
-        transform: translateX(-50%) scale(1.2);
+        transform: translateX(-50%) scale(1.2); /* 少し拡大 */
       }
       100% {
-        top: 150px;
+        top: 150px; /* 賽銭箱の位置 */
         left: 50%;
         transform: translateX(-50%) scale(1);
-        opacity: 0;
+        opacity: 0; /* アニメーション後に消える */
       }
     }
   </style>
 </head>
 <body>
+
   <h1>霊夢に賽銭を投げよう！</h1>
 
   <img id="reimu" src="reimu_normal.png" alt="霊夢の表情">
@@ -83,55 +87,29 @@
 
   <div id="message">賽銭まだ？</div>
   <button id="coin-button">賽銭を投げる！</button>
-  <button id="reset-button">リセット</button>
-
-  <div>
-    <label for="timer-select">タイマー: </label>
-    <select id="timer-select">
-      <option value="0">タイマーなし</option>
-      <option value="5">5秒</option>
-      <option value="10">10秒</option>
-      <option value="60">1分</option>
-      <option value="300">5分</option>
-    </select>
-  </div>
-
   <div id="coin-count">賽銭の数: 0</div>
   <div id="cps">CPS: 0</div>
-  <div id="high-score">ハイスコア: 0</div>
-  <div id="timer-display"></div>
 
   <footer>
     霊夢立ち絵: <a href="https://twitter.com/_Hoshi_Ringo_" target="_blank">星りんご (@_Hoshi_Ringo_)</a>
   </footer>
 
   <audio id="coin-sound">
-    <source src="https://freesound.org/data/previews/341/341695_3248244-lq.mp3" type="audio/mpeg">
+  <source src="https://freesound.org/data/previews/341/341695_3248244-lq.mp3" type="audio/mpeg">
   </audio>
 
   <script>
-    const coinButton = document.getElementById("coin-button");
-    const resetButton = document.getElementById("reset-button");
+    const messageDiv = document.getElementById("message");
     const coinCountDiv = document.getElementById("coin-count");
     const cpsDiv = document.getElementById("cps");
-    const highScoreDiv = document.getElementById("high-score");
-    const messageDiv = document.getElementById("message");
+    const coinButton = document.getElementById("coin-button");
+    const coinSound = document.getElementById("coin-sound");
     const reimuImg = document.getElementById("reimu");
     const saisenBako = document.getElementById("saisenbako");
-    const coinSound = document.getElementById("coin-sound");
-    const timerSelect = document.getElementById("timer-select");
-    const timerDisplay = document.getElementById("timer-display");
 
     let coinCount = 0;
-    let highScore = parseInt(localStorage.getItem("highScore")) || 0;
     let clickTimes = [];
     let lastTouch = 0;
-    let timerInterval = null;
-    let timeRemaining = 0;
-    let timerRunning = false;
-    let isTimerStopped = false;  // タイマー停止状態を追跡
-
-    highScoreDiv.textContent = `ハイスコア: ${highScore}`;
 
     const reimuFaces = {
       normal: "reimu_normal.png",
@@ -165,13 +143,11 @@
 
     function updateCPS() {
       const now = Date.now();
-      clickTimes = clickTimes.filter(t => now - t < 1000);  // 1秒以内のクリックのみカウント
+      clickTimes = clickTimes.filter(t => now - t < 1000);
       cpsDiv.textContent = `CPS: ${clickTimes.length}`;
     }
 
     function throwCoin() {
-      if (isTimerStopped || !timerRunning && timerSelect.value != "0") return;  // タイマー停止後やタイマーがない状態でない場合
-
       const now = Date.now();
       clickTimes.push(now);
       updateCPS();
@@ -182,82 +158,39 @@
       coinCountDiv.textContent = `賽銭の数: ${coinCount}`;
 
       let selectedLine = saisenLines[0];
-      for (let line of saisenLines) {
-        if (coinCount >= line.count) selectedLine = line;
-        else break;
+      for (let i = 0; i < saisenLines.length; i++) {
+        if (coinCount >= saisenLines[i].count) {
+          selectedLine = saisenLines[i];
+        } else {
+          break;
+        }
       }
 
       messageDiv.textContent = selectedLine.line;
       reimuImg.src = reimuFaces[selectedLine.face];
 
-      const coin = document.createElement("div");
-      coin.classList.add("coin");
+      // コインアニメーションの追加
+      const coin = document.createElement('div');
+      coin.classList.add('coin');
       saisenBako.appendChild(coin);
-      setTimeout(() => coin.remove(), 1000);
-    }
-
-    function startTimer(duration) {
-      if (timerInterval) clearInterval(timerInterval);
-      if (duration <= 0) {
-        timerDisplay.textContent = "";
-        timerRunning = false;
-        return;
-      }
-      timeRemaining = duration;
-      timerRunning = true;
-      isTimerStopped = false;  // タイマーを再開状態に
-      timerDisplay.textContent = `残り時間: ${timeRemaining}秒`;
-      timerInterval = setInterval(() => {
-        timeRemaining--;
-        timerDisplay.textContent = `残り時間: ${timeRemaining}秒`;
-        if (timeRemaining <= 0) {
-          clearInterval(timerInterval);
-          coinButton.disabled = true;
-          messageDiv.textContent = "時間切れよ";
-          reimuImg.src = reimuFaces.angry;
-          timerRunning = false;
-          isTimerStopped = true;  // タイマー停止状態
-          updateHighScore();
-        }
+      setTimeout(() => {
+        coin.remove(); // アニメーション後にコインを削除
       }, 1000);
     }
 
-    function resetGame() {
-      coinCount = 0;
-      clickTimes = [];
-      coinCountDiv.textContent = "賽銭の数: 0";
-      cpsDiv.textContent = "CPS: 0";
-      messageDiv.textContent = "賽銭まだ？";
-      reimuImg.src = reimuFaces.normal;
-      coinButton.disabled = false;  // リセット時にボタンを有効化
-
-      // タイマーもリセット
-      let selectedTime = parseInt(timerSelect.value);
-      startTimer(selectedTime);
-    }
-
-    function updateHighScore() {
-      if (coinCount > highScore) {
-        highScore = coinCount;
-        localStorage.setItem("highScore", highScore);
-        highScoreDiv.textContent = `ハイスコア: ${highScore}`;
-      }
-    }
-
-    coinButton.addEventListener("click", throwCoin);
-    coinButton.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      if (Date.now() - lastTouch > 500) {
-        lastTouch = Date.now();
-        throwCoin();
-      }
+    // 長押し対策
+    coinButton.addEventListener("mousedown", (e) => {
+      if (Date.now() - lastTouch < 500) return;
+      throwCoin();
     });
 
-    resetButton.addEventListener("click", resetGame);
-    setInterval(updateCPS, 200);
+    coinButton.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      lastTouch = Date.now();
+      throwCoin();
+    });
 
-    // 初期化
-    resetGame();
+    setInterval(updateCPS, 200);
   </script>
 </body>
 </html>
